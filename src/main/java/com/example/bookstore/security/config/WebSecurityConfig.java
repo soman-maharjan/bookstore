@@ -10,6 +10,7 @@ import com.example.bookstore.security.jwt.JwtProvider;
 import com.example.bookstore.security.jwt.SkipPathRequestMatcher;
 import com.example.bookstore.security.jwt.extractor.TokenExtractor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -36,20 +37,44 @@ public class WebSecurityConfig {
     public static final String REFRESH_TOKEN_URL = "/api/auth/token";
     public static final String API_ROOT_URL = "/api/**";
 
+    @Autowired
+    private AuthEntryPoint authenticationEntryPoint;
+
+    @Autowired private AuthSuccessHandler successHandler;
+    @Autowired private AuthFailureHandler failureHandler;
+//    @Autowired private AuthProvider ajaxAuthenticationProvider;
+//    @Autowired private JwtProvider jwtAuthenticationProvider;
+
+    @Autowired private TokenExtractor tokenExtractor;
+
+//    @Autowired private AuthenticationManager authenticationManager;
+
+    @Autowired private ObjectMapper objectMapper;
+
     protected AuthFilter buildAuthFilter() throws Exception {
-        return new AuthFilter(WebSecurityConfig.AUTHENTICATION_URL, successHandler, failureHandler, objectMapper);
+        AuthFilter filter = new AuthFilter(WebSecurityConfig.AUTHENTICATION_URL, successHandler, failureHandler, objectMapper);
+//        filter.setAuthenticationManager(this.authenticationManager);
+        return filter;
     }
 
     protected JwtFilter buildJwtTokenAuthFilter(List<String> pathsToSkip, String pattern) throws Exception {
         SkipPathRequestMatcher matcher = new SkipPathRequestMatcher(pathsToSkip, pattern);
-        return new JwtFilter(failureHandler, tokenExtractor, matcher);
+        JwtFilter filter = new JwtFilter(failureHandler, tokenExtractor, matcher);
+//        filter.setAuthenticationManager(this.authenticationManager);
+        return filter;
     }
 
-    @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
-    }
+//    @Bean
+//    public AuthenticationManager authenticationManager(
+//            AuthenticationConfiguration authenticationConfiguration) throws Exception {
+//        return authenticationConfiguration.getAuthenticationManager();
+//    }
+
+//    public AuthenticationManagerBuilder configure(AuthenticationManagerBuilder auth) {
+//        auth.authenticationProvider(ajaxAuthenticationProvider);
+//        auth.authenticationProvider(jwtAuthenticationProvider);
+//        return auth;
+//    }
 
     @Bean
     public CustomUsernamePasswordAuthenticationFilter authenticationFilter(
@@ -57,12 +82,12 @@ public class WebSecurityConfig {
             AuthSuccessHandler customAuthenticationSuccessHandler,
             AuthFailureHandler customAuthenticationFailureHandler) throws Exception {
         CustomUsernamePasswordAuthenticationFilter authenticationFilter = new CustomUsernamePasswordAuthenticationFilter();
-        AuthenticationManager authenticationManager = authenticationManager(
-                http.getSharedObject(AuthenticationConfiguration.class));
+//        AuthenticationManager authenticationManager = authenticationManager(
+//                http.getSharedObject(AuthenticationConfiguration.class));
 
         AntPathRequestMatcher antPathRequestMatcher = new AntPathRequestMatcher("/v1/auth/sign-in", "POST");
 
-        authenticationFilter.setAuthenticationManager(authenticationManager);
+//        authenticationFilter.setAuthenticationManager(authenticationManager);
         authenticationFilter.setRequiresAuthenticationRequestMatcher(antPathRequestMatcher);
         authenticationFilter.setAuthenticationFailureHandler(customAuthenticationFailureHandler);
         authenticationFilter.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler);
@@ -71,7 +96,7 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, AuthEntryPoint restAuthenticationEntryPoint) throws Exception {
         List<String> permitAllEndpointList = Arrays.asList(
                 AUTHENTICATION_URL,
                 REFRESH_TOKEN_URL,
@@ -84,10 +109,11 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
 
                 .exceptionHandling((exception) -> exception
-                        .authenticationEntryPoint(this.authenticationEntryPoint)
+                                .authenticationEntryPoint(restAuthenticationEntryPoint)
+//                                .authenticationEntryPoint(this.authenticationEntryPoint)
                 )
 
-                .authorizeHttpRequests((authorize) -> authorize
+                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers((permitAllEndpointList.toArray(new String[0])))
                 )
                 .authorizeHttpRequests((authorize) -> authorize

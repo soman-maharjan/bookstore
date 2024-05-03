@@ -1,4 +1,4 @@
-package com.springboot3.boilerplate.miscellaneous.cachedrequest;
+package com.example.bookstore.miscellaneous.cachedrequest;
 
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;

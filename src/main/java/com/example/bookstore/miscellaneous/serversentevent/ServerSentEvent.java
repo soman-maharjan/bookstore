@@ -1,4 +1,4 @@
-package com.springboot3.boilerplate.miscellaneous.serversentevent;
+package com.example.bookstore.miscellaneous.serversentevent;
 
 public enum ServerSentEvent {
     EMAIL_VERIFIED,

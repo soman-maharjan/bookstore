@@ -1,4 +1,4 @@
-package com.springboot3.boilerplate.miscellaneous.job;
+package com.example.bookstore.miscellaneous.job;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

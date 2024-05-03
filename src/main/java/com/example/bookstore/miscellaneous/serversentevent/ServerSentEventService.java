@@ -1,4 +1,4 @@
-package com.springboot3.boilerplate.miscellaneous.serversentevent;
+package com.example.bookstore.miscellaneous.serversentevent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

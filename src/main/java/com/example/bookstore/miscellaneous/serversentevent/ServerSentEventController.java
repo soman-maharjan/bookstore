@@ -1,4 +1,4 @@
-package com.springboot3.boilerplate.miscellaneous.serversentevent;
+package com.example.bookstore.miscellaneous.serversentevent;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
